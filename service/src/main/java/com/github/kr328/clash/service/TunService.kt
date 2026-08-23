@@ -17,6 +17,7 @@ import com.github.kr328.clash.service.util.cancelAndJoinBlocking
 import com.github.kr328.clash.service.util.parseCIDR
 import com.github.kr328.clash.service.util.sendClashStarted
 import com.github.kr328.clash.service.util.sendClashStopped
+import com.github.kr328.clash.service.util.autoproxyDir
 import kotlinx.coroutines.*
 import kotlinx.coroutines.selects.select
 
@@ -31,13 +32,10 @@ class TunService : VpnService(), CoroutineScope by CoroutineScope(Dispatchers.De
 
         val close = install(CloseModule(self))
         val tun = install(TunModule(self))
-        val config = install(ConfigurationModule(self))
+        val config = install(FixedConfigModule(self, self.autoproxyDir))
         val network = install(NetworkObserveModule(self))
 
-        if (store.dynamicNotification)
-            install(DynamicNotificationModule(self))
-        else
-            install(StaticNotificationModule(self))
+        install(StaticNotificationModule(self))
 
         install(AppListCacheModule(self))
         install(TimeZoneModule(self))
@@ -182,16 +180,6 @@ class TunService : VpnService(), CoroutineScope by CoroutineScope(Dispatchers.De
             if (store.allowIpv6) {
                 addDnsServer(TUN_DNS6)
             }
-
-            // Open MainActivity
-            setConfigureIntent(
-                PendingIntent.getActivity(
-                    self,
-                    R.id.nf_vpn_status,
-                    Intent().setComponent(Components.MAIN_ACTIVITY),
-                    pendingIntentFlags(PendingIntent.FLAG_UPDATE_CURRENT)
-                )
-            )
 
             // Metered
             if (Build.VERSION.SDK_INT >= 29) {

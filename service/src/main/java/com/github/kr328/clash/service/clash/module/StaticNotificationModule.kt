@@ -23,15 +23,6 @@ class StaticNotificationModule(service: Service) : Module<Unit>(service) {
         .setOnlyAlertOnce(true)
         .setShowWhen(false)
         .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-        .setContentIntent(
-            PendingIntent.getActivity(
-                service,
-                R.id.nf_clash_status,
-                Intent().setComponent(Components.MAIN_ACTIVITY)
-                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP),
-                pendingIntentFlags(PendingIntent.FLAG_UPDATE_CURRENT)
-            )
-        )
 
     override suspend fun run() {
         val loaded = receiveBroadcast(capacity = Channel.CONFLATED) {

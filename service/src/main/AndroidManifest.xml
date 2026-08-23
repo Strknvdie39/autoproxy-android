@@ -15,7 +15,6 @@
             android:name=".ClashService"
             android:exported="false"
             android:label="@string/clash_meta_for_android"
-            android:process=":background"
             android:foregroundServiceType="specialUse">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="explanation_for_special_use"/>
@@ -25,7 +24,6 @@
             android:exported="false"
             android:label="@string/clash_meta_for_android"
             android:permission="android.permission.BIND_VPN_SERVICE"
-            android:process=":background"
             android:foregroundServiceType="specialUse">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="explanation_for_special_use"/>
@@ -35,12 +33,10 @@
         </service>
         <service
             android:name=".RemoteService"
-            android:exported="false"
-            android:process=":background" />
+            android:exported="false" />
         <service
             android:name=".ProfileWorker"
             android:exported="false"
-            android:process=":background"
             android:foregroundServiceType="specialUse">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="explanation_for_special_use"/>
@@ -51,8 +47,7 @@
             android:authorities="${applicationId}.files"
             android:exported="true"
             android:grantUriPermissions="true"
-            android:permission="android.permission.MANAGE_DOCUMENTS"
-            android:process=":background">
+            android:permission="android.permission.MANAGE_DOCUMENTS">
             <intent-filter>
                 <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
             </intent-filter>
@@ -60,20 +55,17 @@
         <provider
             android:name=".StatusProvider"
             android:authorities="${applicationId}.status"
-            android:exported="false"
-            android:process=":background" />
+            android:exported="false" />
         <provider
             android:name=".PreferenceProvider"
             android:authorities="${applicationId}.settings"
-            android:exported="false"
-            android:process=":background" />
+            android:exported="false" />
 
         <receiver
             android:name=".ProfileReceiver"
             android:enabled="true"
             android:exported="true"
-            android:permission="${applicationId}.permission.RECEIVE_BROADCASTS"
-            android:process=":background">
+            android:permission="${applicationId}.permission.RECEIVE_BROADCASTS">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />

@@ -47,7 +47,7 @@ subprojects {
         defaultConfig {
             if (isApp) {
                 val customApplicationId = queryConfigProperty("custom.application.id") as? String?
-                applicationId = customApplicationId.takeIf { it?.isNotBlank() == true } ?: "com.github.metacubex.clash"
+                applicationId = customApplicationId.takeIf { it?.isNotBlank() == true } ?: "vn.autoplatform.proxy"
             }
 
             project.name.let { name ->
@@ -55,11 +55,11 @@ subprojects {
                 else "com.github.kr328.clash.$name"
             }
 
-            minSdk = 21
+            minSdk = 28
             targetSdk = 35
 
-            versionName = "2.11.33"
-            versionCode = 211033
+            versionName = "0.1.0"
+            versionCode = 1
 
             resValue("string", "release_name", "v$versionName")
             resValue("integer", "release_code", "$versionCode")
@@ -77,7 +77,7 @@ subprojects {
             if (!isApp) {
                 consumerProguardFiles("consumer-rules.pro")
             } else {
-                setProperty("archivesBaseName", "cmfa-$versionName")
+                setProperty("archivesBaseName", "autoproxy-$versionName")
             }
         }
 
@@ -96,7 +96,7 @@ subprojects {
         productFlavors {
             flavorDimensions("feature")
 
-            val removeSuffix = (queryConfigProperty("remove.suffix") as? String)?.toBoolean() == true
+            val removeSuffix = (queryConfigProperty("remove.suffix") as? String)?.toBoolean() ?: true
 
             create("alpha") {
                 isDefault = true
@@ -108,8 +108,8 @@ subprojects {
 
                 buildConfigField("boolean", "PREMIUM", "Boolean.parseBoolean(\"false\")")
 
-                resValue("string", "launch_name", "@string/launch_name_alpha")
-                resValue("string", "application_name", "@string/application_name_alpha")
+                resValue("string", "launch_name", "AutoProxy")
+                resValue("string", "application_name", "AutoProxy")
 
                 if (isApp && !removeSuffix) {
                     applicationIdSuffix = ".alpha"
@@ -125,8 +125,8 @@ subprojects {
 
                 buildConfigField("boolean", "PREMIUM", "Boolean.parseBoolean(\"false\")")
 
-                resValue("string", "launch_name", "@string/launch_name_meta")
-                resValue("string", "application_name", "@string/application_name_meta")
+                resValue("string", "launch_name", "AutoProxy")
+                resValue("string", "application_name", "AutoProxy")
 
                 if (isApp && !removeSuffix) {
                     applicationIdSuffix = ".meta"
