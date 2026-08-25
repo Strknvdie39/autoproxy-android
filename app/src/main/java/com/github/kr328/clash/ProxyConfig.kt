@@ -32,6 +32,10 @@ object ProxyConfig {
      * `rules` khi global -> dong chan UDP khong co tac dung; `rule` + `MATCH,up` cho cung ket qua
      * "moi TCP qua up, moi UDP REJECT". Khong `tun:` (CMFA tu dung VpnService), khong
      * external-controller (core tu strip).
+     *
+     * 0.1.1: 4 luat private CIDR -> DIRECT truoc MATCH,up — day an toan cho ca proxy nam
+     * CUNG LAN voi may (NAT hairpin P0d 23/08: CONNECT phai tro dia chi LAN cua proxy,
+     * traffic toi proxy khong duoc chui nguoc vao tun).
      */
     fun render(p: ProxyProfile): String = buildString {
         appendLine("mode: rule")
@@ -52,6 +56,10 @@ object ProxyConfig {
         appendLine("    password: ${q(p.pass)}")
         appendLine("rules:")
         appendLine("  - AND,((NETWORK,udp)),REJECT")
+        appendLine("  - IP-CIDR,127.0.0.0/8,DIRECT,no-resolve")
+        appendLine("  - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve")
+        appendLine("  - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve")
+        appendLine("  - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve")
         appendLine("  - MATCH,up")
     }
 

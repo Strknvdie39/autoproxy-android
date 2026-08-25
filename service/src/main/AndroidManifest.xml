@@ -3,7 +3,6 @@
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
@@ -61,21 +60,9 @@
             android:authorities="${applicationId}.settings"
             android:exported="false" />
 
-        <receiver
-            android:name=".ProfileReceiver"
-            android:enabled="true"
-            android:exported="true"
-            android:permission="${applicationId}.permission.RECEIVE_BROADCASTS">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
-                <action android:name="android.intent.action.TIME_SET" />
-                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="{applicationId}.intent.action.PROFILE_REQUEST_UPDATE" />
-                <data android:scheme="uuid" />
-            </intent-filter>
-        </receiver>
+        <!-- AutoProxy 0.1.1: ProfileReceiver (BOOT_COMPLETED/...) da cat — headless khong
+             profile-manager, sau reboot tien trinh KHONG tu day (P10: pid rong khong tun0,
+             vo nghia); server tu CONNECT lai qua gate init/watchdog. Lop Kotlin giu nguyen
+             (ProfileWorker/ProfileManager con tham chieu khi bien dich, ca hai khong dung). -->
     </application>
 </manifest>

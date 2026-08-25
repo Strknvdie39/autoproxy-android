@@ -13,6 +13,7 @@ import java.net.SocketException
 import java.net.SocketTimeoutException
 import java.net.URL
 import java.net.UnknownHostException
+import java.util.concurrent.atomic.AtomicReference
 import javax.net.ssl.SSLException
 
 /**
@@ -93,9 +94,27 @@ class LocalHttpServer(val port: Int) {
         query.split('&').firstOrNull { it.startsWith("$key=") }
             ?.substringAfter('=')?.toIntOrNull()?.coerceIn(1_000, 60_000) ?: default
 
-    /** Loi doc ve theo spec: proxy_reset | timeout | dns | http_<code> | <message>. */
+    /**
+     * Loi doc ve theo spec: proxy_reset | timeout | dns | http_<code> | <message>.
+     *
+     * 0.1.1: deadline TONG = timeout_ms. Truoc day connectTimeout/readTimeout chi tran
+     * TUNG BUOC (DNS + TLS + connect + read cong don -> do 10.06s voi timeout_ms=8000).
+     * Fetch chay trong thread con daemon, join(timeout_ms): het gio -> tra
+     * {ok:false, err:"timeout"} NGAY, ket qua den muon bi BO (thread con tu chet theo
+     * timeout per-op, leak co tran). `ms` chi dat o tang ngoai, mot lan.
+     */
     private fun probe(timeoutMs: Int): JSONObject {
         val t0 = SystemClock.elapsedRealtime()
+        val result = AtomicReference<JSONObject?>()
+        val worker = Thread({ result.set(fetchProbe(timeoutMs)) }, "autoproxy-probe")
+        worker.isDaemon = true
+        worker.start()
+        worker.join(timeoutMs.toLong())
+        val body = result.get() ?: JSONObject().put("ok", false).put("err", "timeout")
+        return body.put("ms", SystemClock.elapsedRealtime() - t0)
+    }
+
+    private fun fetchProbe(timeoutMs: Int): JSONObject {
         val out = JSONObject()
         try {
             val conn = URL(PROBE_URL).openConnection() as HttpURLConnection
@@ -125,7 +144,7 @@ class LocalHttpServer(val port: Int) {
         } catch (e: Exception) {
             out.put("ok", false).put("err", e.javaClass.simpleName + ":" + e.message)
         }
-        return out.put("ms", SystemClock.elapsedRealtime() - t0)
+        return out
     }
 
     private fun classify(msg: String?): String {
