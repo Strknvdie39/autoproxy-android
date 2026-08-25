@@ -58,8 +58,13 @@ subprojects {
             minSdk = 28
             targetSdk = 35
 
-            versionName = "0.1.1"
-            versionCode = 2
+            // LUAT DONG BO (contract dev2 2026-08-25 §3): hai so nay phai di
+            // CUNG NHIP voi AUTOPROXY_BUNDLED_VERSION_CODE trong
+            // server/core/proxy_apply.py, tag release `autoproxy-<versionName>`
+            // va 3 bien $AutoProxy* trong build/build_release.ps1. Luoi chong
+            // tai phat: server/verify_proxy_autoinstall.py ca C2/C3.
+            versionName = "0.1.2"
+            versionCode = 3
 
             resValue("string", "release_name", "v$versionName")
             resValue("integer", "release_code", "$versionCode")

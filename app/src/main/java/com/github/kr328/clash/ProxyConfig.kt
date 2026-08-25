@@ -2,13 +2,20 @@ package com.github.kr328.clash
 
 import java.io.File
 
-/** Profile proxy HTTP upstream (spec D' 3.3). Pass chi song trong RAM + config.yaml thu muc rieng. */
+/** Profile proxy upstream (spec D' 3.3). Pass chi song trong RAM + config.yaml thu muc rieng. */
 data class ProxyProfile(
     val host: String,
     val port: Int,
     val user: String,
     val pass: String,
     val localPort: Int,
+    /**
+     * 0.1.2 — `http` hoac `socks5`. Server tu do loai roi gui kem CONNECT; may
+     * KHONG tu doan. Mac dinh `http` de ban server cu (khong gui extra) van chay
+     * y het truoc. Dat SAI la kieu hong CAM LANG: tunnel len, `/probe` xanh, ma
+     * khong goi nao qua duoc — dung hinh thu ma may11 25/08 da day.
+     */
+    val scheme: String = "http",
 ) {
     /** `A.B.***.***` — che 2 octet cuoi (spec 3.5). Host khong phai IPv4 thi che tu ky tu thu 3. */
     val maskedHost: String
@@ -49,7 +56,9 @@ object ProxyConfig {
         appendLine("    - https://1.1.1.1/dns-query")
         appendLine("proxies:")
         appendLine("  - name: up")
-        appendLine("    type: http")
+        // `http` va `socks5` dung CHUNG bo truong server/port/username/password
+        // trong mihomo, nen chi mot dong nay doi.
+        appendLine("    type: ${p.scheme}")
         appendLine("    server: ${q(p.host)}")
         appendLine("    port: ${p.port}")
         appendLine("    username: ${q(p.user)}")

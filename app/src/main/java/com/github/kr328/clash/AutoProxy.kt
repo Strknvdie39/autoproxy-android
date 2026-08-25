@@ -173,6 +173,10 @@ object AutoProxy {
         put("host", p?.maskedHost ?: JSONObject.NULL)
         put("port", p?.port ?: JSONObject.NULL)
         put("user", p?.maskedUser ?: JSONObject.NULL)
+        // 0.1.2 — loai proxy may DANG THUC SU cau hinh. Server doi chieu voi loai
+        // no do duoc; lech nghia la tunnel len ma khong goi nao qua duoc. Bao
+        // gio cung doc tu profile trong RAM, dung tu extra vua nhan.
+        put("scheme", p?.scheme ?: JSONObject.NULL)
         put("err", err ?: JSONObject.NULL)
     }
 

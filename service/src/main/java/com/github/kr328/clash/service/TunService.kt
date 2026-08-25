@@ -95,7 +95,23 @@ class TunService : VpnService(), CoroutineScope by CoroutineScope(Dispatchers.De
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         sendClashStarted()
 
-        return super.onStartCommand(intent, flags, startId)
+        super.onStartCommand(intent, flags, startId)
+
+        // 0.1.2 — KHONG BAO GIO de he thong tu dung service nay len lai.
+        //
+        // Mac dinh cua Service la START_STICKY. Tren may it RAM, khi quyen VPN
+        // bi chan (appops ACTIVATE_VPN=ignore) thi establish() tra null ->
+        // service chet -> LMK giet tien trinh dung luc do -> Android hoi sinh
+        // service sticky voi intent null -> lai establish() -> lai chet. Vong
+        // nay dot CPU/RAM lien tuc; may11 25/08 dong bang ~12s moi lenh adb.
+        //
+        // Bo sticky con chua mot cai loi thu hai: ban hoi sinh dung config.yaml
+        // cu de dung tunnel trong khi AutoProxy (RAM da mat) van bao
+        // state=disconnected — bang dieu khien mot dang, thuc te mot neo, dung
+        // kieu lech ma may11 da day. Duong hoi phuc DUY NHAT la watchdog phia
+        // server: no thay tun0 mat la CONNECT lai kem DU profile, nen so trang
+        // thai hai dau luon khop.
+        return START_NOT_STICKY
     }
 
     override fun onDestroy() {
@@ -204,8 +220,16 @@ class TunService : VpnService(), CoroutineScope by CoroutineScope(Dispatchers.De
             }
 
             TunModule.TunDevice(
+                // 0.1.2 — ma MAY DOC DUOC, khong phai cau tieng Anh. Chuoi nay di
+                // nguyen van: reason -> sendClashStopped -> AutoProxy.err -> STATUS
+                // JSON -> server doc ra state `vpn_rejected`. Doi chu o day la doi
+                // hop dong voi server; sua kem core/proxy_apply.py.
+                //
+                // KHAC `consent_denied`: kia la prepare() doi dialog. Day la
+                // prepare() QUA nhung establish() van bi tu choi — appops
+                // ACTIVATE_VPN=ignore, hoac mot app VPN khac dang giu cho.
                 fd = establish()?.detachFd()
-                    ?: throw NullPointerException("Establish VPN rejected by system"),
+                    ?: throw NullPointerException("vpn_rejected"),
                 stack = store.tunStackMode,
                 gateway = "$TUN_GATEWAY/$TUN_SUBNET_PREFIX" + if (store.allowIpv6) ",$TUN_GATEWAY6/$TUN_SUBNET_PREFIX6" else "",
                 portal = TUN_PORTAL + if (store.allowIpv6) ",$TUN_PORTAL6" else "",
