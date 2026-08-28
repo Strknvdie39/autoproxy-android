@@ -22,10 +22,20 @@ import javax.net.ssl.SSLException
  *   GET /status            -> AutoProxy.statusJson() (da che)
  *   GET /probe?timeout_ms= -> GET that toi https://api.ipify.org bang socket KHONG protect
  *                             (= di qua tun nhu app thuong) -> {ok, egress_ip, ms} | {ok:false, err, ms}
- * Chi bind 127.0.0.1. Moi request 1 thread, Connection: close.
+ * Chi bind 127.0.0.1 (IPv4 RAW — xem chu thich o `socket`). Moi request 1 thread, Connection: close.
  */
 class LocalHttpServer(val port: Int) {
-    private val socket = ServerSocket(port, 8, InetAddress.getLoopbackAddress())
+    /**
+     * 0.1.3 — GHIM 127.0.0.1 bang dia chi RAW. `InetAddress.getLoopbackAddress()` tra `::1`
+     * khi runtime uu tien IPv6, va no KHONG xac dinh theo ROM/luot boot: may3 28/08 co
+     * `[::1]:45E2 LISTEN` trong /proc/net/tcp6 con IPv4 trong tron, may khac cung ROM lai
+     * binh thuong. Host do `/probe` qua `adb forward tcp:X tcp:17890` va adbd noi vao
+     * loopback IPv4 => connection refused => server ket luan "proxy chet" => THAO tunnel
+     * dua may ve MANG THAT trong khi tunnel dang song. Bind sai mot bit dia chi doi lay
+     * mot lan LO IP: khong duoc de no phu thuoc vao ROM. Khong resolve "localhost" (no ra
+     * IPv6 duoc) — dia chi raw la thu duy nhat khong the doi nghia.
+     */
+    private val socket = ServerSocket(port, 8, InetAddress.getByAddress(IPV4_LOOPBACK))
 
     @Volatile
     private var running = true
@@ -159,5 +169,8 @@ class LocalHttpServer(val port: Int) {
 
     companion object {
         const val PROBE_URL = "https://api.ipify.org"
+
+        /** 127.0.0.1 — xem chu thich o `socket`. */
+        private val IPV4_LOOPBACK = byteArrayOf(127, 0, 0, 1)
     }
 }

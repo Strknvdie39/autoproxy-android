@@ -63,8 +63,8 @@ subprojects {
             // server/core/proxy_apply.py, tag release `autoproxy-<versionName>`
             // va 3 bien $AutoProxy* trong build/build_release.ps1. Luoi chong
             // tai phat: server/verify_proxy_autoinstall.py ca C2/C3.
-            versionName = "0.1.2"
-            versionCode = 3
+            versionName = "0.1.3"
+            versionCode = 4
 
             resValue("string", "release_name", "v$versionName")
             resValue("integer", "release_code", "$versionCode")
